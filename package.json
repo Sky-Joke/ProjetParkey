@@ -24,5 +24,8 @@
   "scripts": {
     "start": "C:\\Users\\joejo\\Documents\\parkey-app\\parkey-react-app\\src\\App.html",
     "dev": "vite dev"
+  },
+  "dependencies": {
+    "@tailwindcss/vite": "^4.1.18"
   }
 }
