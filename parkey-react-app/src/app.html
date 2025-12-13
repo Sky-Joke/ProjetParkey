@@ -1,0 +1,766 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <base target="_self">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Parkey - Tokenisation de Places de Parking</title>
+    <meta name="description" content="Plateforme Web3 pour tokeniser et échanger des places de parking via la blockchain">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#6366f1',
+                        secondary: '#8b5cf6',
+                        dark: '#1e1b4b',
+                        accent: '#10b981',
+                    },
+                }
+            }
+        }
+    </script>
+    <style>
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .animate-fade-in {
+            animation: fadeIn 0.3s ease-in;
+        }
+        
+        .gradient-bg {
+            background: linear-gradient(135deg, #1e1b4b 0%, #581c87 50%, #1e1b4b 100%);
+        }
+        
+        .glass-effect {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .hover-lift {
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        
+        .hover-lift:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 40px rgba(99, 102, 241, 0.3);
+        }
+    </style>
+</head>
+<body class="gradient-bg text-white min-h-screen">
+    <!-- Header -->
+    <header class="glass-effect sticky top-0 z-50 border-b border-purple-500/20">
+        <nav class="container mx-auto px-4 py-4">
+            <div class="flex items-center justify-between">
+                <a href="#" class="flex items-center space-x-2" onclick="event.preventDefault(); showPage('home')">
+                    <i class="fas fa-parking text-3xl text-primary"></i>
+                    <span class="text-2xl font-bold bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
+                        Parkey
+                    </span>
+                </a>
+                
+                <div class="hidden md:flex items-center space-x-8">
+                    <a href="#" class="hover:text-primary transition-colors" onclick="event.preventDefault(); showPage('home')">
+                        Accueil
+                    </a>
+                    <a href="#" class="hover:text-primary transition-colors" onclick="event.preventDefault(); showPage('marketplace')">
+                        Marketplace
+                    </a>
+                    <a href="#" class="hover:text-primary transition-colors" onclick="event.preventDefault(); showPage('my-tokens')">
+                        Mes Tokens
+                    </a>
+                    <a href="#" class="hover:text-primary transition-colors" onclick="event.preventDefault(); showPage('create')">
+                        Créer
+                    </a>
+                </div>
+                
+                <div class="flex items-center space-x-4">
+                    <button id="walletBtn" onclick="toggleWallet()" class="bg-gradient-to-r from-primary to-secondary px-6 py-2 rounded-lg font-semibold hover:shadow-lg hover:shadow-primary/50 transition-all">
+                        <i class="fas fa-wallet mr-2"></i>
+                        <span id="walletText">Connecter Wallet</span>
+                    </button>
+                    
+                    <button class="md:hidden text-2xl" onclick="toggleMobileMenu()">
+                        <i class="fas fa-bars" id="menuIcon"></i>
+                    </button>
+                </div>
+            </div>
+
+            <div id="mobileMenu" class="hidden md:hidden mt-4 pb-4 space-y-4">
+                <a href="#" class="block hover:text-primary transition-colors" onclick="event.preventDefault(); showPage('home'); toggleMobileMenu()">
+                    Accueil
+                </a>
+                <a href="#" class="block hover:text-primary transition-colors" onclick="event.preventDefault(); showPage('marketplace'); toggleMobileMenu()">
+                    Marketplace
+                </a>
+                <a href="#" class="block hover:text-primary transition-colors" onclick="event.preventDefault(); showPage('my-tokens'); toggleMobileMenu()">
+                    Mes Tokens
+                </a>
+                <a href="#" class="block hover:text-primary transition-colors" onclick="event.preventDefault(); showPage('create'); toggleMobileMenu()">
+                    Créer
+                </a>
+            </div>
+        </nav>
+    </header>
+
+    <!-- Main Content -->
+    <main id="mainContent">
+        <!-- Home Page -->
+        <div id="homePage" class="page-content">
+            <!-- Hero Section -->
+            <section class="container mx-auto px-4 py-20">
+                <div class="text-center max-w-4xl mx-auto">
+                    <h1 class="text-5xl md:text-6xl font-bold mb-6 bg-gradient-to-r from-primary via-secondary to-accent bg-clip-text text-transparent">
+                        Tokenisez vos Places de Parking
+                    </h1>
+                    <p class="text-xl text-gray-300 mb-8">
+                        Transformez vos places de parking en NFTs échangeables sur la blockchain. Achetez, vendez et louez en toute sécurité.
+                    </p>
+                    <div class="flex flex-col sm:flex-row gap-4 justify-center">
+                        <button onclick="showPage('create')" class="bg-primary hover:bg-primary/80 px-8 py-4 rounded-lg font-semibold text-lg transition-all hover:shadow-lg hover:shadow-primary/50">
+                            <i class="fas fa-plus-circle mr-2"></i>
+                            Créer un Token
+                        </button>
+                        <button onclick="showPage('marketplace')" class="glass-effect hover:bg-white/20 px-8 py-4 rounded-lg font-semibold text-lg transition-all">
+                            <i class="fas fa-store mr-2"></i>
+                            Explorer le Marketplace
+                        </button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Stats Section -->
+            <section class="container mx-auto px-4 py-12">
+                <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
+                    <div class="glass-effect rounded-xl p-6 text-center hover:bg-white/10 transition-all">
+                        <div class="text-4xl font-bold text-primary mb-2">1,247</div>
+                        <div class="text-gray-400">Places Tokenisées</div>
+                    </div>
+                    <div class="glass-effect rounded-xl p-6 text-center hover:bg-white/10 transition-all">
+                        <div class="text-4xl font-bold text-primary mb-2">892</div>
+                        <div class="text-gray-400">Propriétaires</div>
+                    </div>
+                    <div class="glass-effect rounded-xl p-6 text-center hover:bg-white/10 transition-all">
+                        <div class="text-4xl font-bold text-primary mb-2">3.2 ETH</div>
+                        <div class="text-gray-400">Volume Total</div>
+                    </div>
+                    <div class="glass-effect rounded-xl p-6 text-center hover:bg-white/10 transition-all">
+                        <div class="text-4xl font-bold text-primary mb-2">456</div>
+                        <div class="text-gray-400">Transactions</div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Featured Parkings -->
+            <section class="container mx-auto px-4 py-12">
+                <div class="flex items-center justify-between mb-8">
+                    <h2 class="text-3xl font-bold">Places en Vedette</h2>
+                    <button onclick="showPage('marketplace')" class="text-primary hover:text-secondary transition-colors">
+                        Voir tout <i class="fas fa-arrow-right ml-2"></i>
+                    </button>
+                </div>
+                
+                <div id="featuredParkings" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    <!-- Parking cards will be inserted here -->
+                </div>
+            </section>
+
+            <!-- How it Works -->
+            <section class="container mx-auto px-4 py-20">
+                <h2 class="text-4xl font-bold text-center mb-12">Comment ça marche ?</h2>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                    <div class="text-center">
+                        <div class="bg-gradient-to-br from-primary to-secondary w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-6">
+                            <i class="fas fa-file-contract text-3xl"></i>
+                        </div>
+                        <h3 class="text-xl font-bold mb-4">1. Tokenisez</h3>
+                        <p class="text-gray-400">
+                            Créez un NFT représentant votre place de parking avec tous les détails nécessaires
+                        </p>
+                    </div>
+                    <div class="text-center">
+                        <div class="bg-gradient-to-br from-secondary to-accent w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-6">
+                            <i class="fas fa-exchange-alt text-3xl"></i>
+                        </div>
+                        <h3 class="text-xl font-bold mb-4">2. Échangez</h3>
+                        <p class="text-gray-400">
+                            Vendez ou louez votre place sur notre marketplace décentralisé
+                        </p>
+                    </div>
+                    <div class="text-center">
+                        <div class="bg-gradient-to-br from-accent to-primary w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-6">
+                            <i class="fas fa-shield-alt text-3xl"></i>
+                        </div>
+                        <h3 class="text-xl font-bold mb-4">3. Sécurisé</h3>
+                        <p class="text-gray-400">
+                            Toutes les transactions sont sécurisées par la blockchain Ethereum
+                        </p>
+                    </div>
+                </div>
+            </section>
+        </div>
+
+        <!-- Marketplace Page -->
+        <div id="marketplacePage" class="page-content hidden">
+            <div class="container mx-auto px-4 py-12">
+                <h1 class="text-4xl font-bold mb-8">Marketplace</h1>
+                
+                <div class="flex flex-wrap gap-4 mb-8">
+                    <button onclick="filterParkings('all')" class="filter-btn px-6 py-2 rounded-lg font-semibold transition-all bg-primary">
+                        Tous
+                    </button>
+                    <button onclick="filterParkings('available')" class="filter-btn px-6 py-2 rounded-lg font-semibold transition-all glass-effect hover:bg-white/20">
+                        Disponibles
+                    </button>
+                    <button onclick="filterParkings('Couvert')" class="filter-btn px-6 py-2 rounded-lg font-semibold transition-all glass-effect hover:bg-white/20">
+                        Couverts
+                    </button>
+                    <button onclick="filterParkings('Souterrain')" class="filter-btn px-6 py-2 rounded-lg font-semibold transition-all glass-effect hover:bg-white/20">
+                        Souterrains
+                    </button>
+                </div>
+
+                <div id="marketplaceParkings" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    <!-- Parking cards will be inserted here -->
+                </div>
+            </div>
+        </div>
+
+        <!-- Create Page -->
+        <div id="createPage" class="page-content hidden">
+            <div class="container mx-auto px-4 py-12">
+                <div class="max-w-2xl mx-auto glass-effect rounded-2xl p-8">
+                    <h1 class="text-3xl font-bold mb-6 text-center">Créer un Token de Parking</h1>
+                    <p class="text-gray-400 text-center mb-8">
+                        Remplissez les informations ci-dessous pour tokeniser votre place de parking
+                    </p>
+                    
+                    <form id="createForm" onsubmit="handleCreateParking(event)" class="space-y-6">
+                        <div>
+                            <label class="block text-sm font-semibold mb-2">Adresse</label>
+                            <input
+                                type="text"
+                                name="address"
+                                class="w-full bg-white/10 border border-white/20 rounded-lg px-4 py-3 focus:outline-none focus:border-primary transition-colors text-white"
+                                placeholder="123 Rue de la Paix, Paris"
+                                required
+                            />
+                        </div>
+                        
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-sm font-semibold mb-2">Type</label>
+                                <select
+                                    name="type"
+                                    class="w-full bg-white/10 border border-white/20 rounded-lg px-4 py-3 focus:outline-none focus:border-primary transition-colors text-white"
+                                >
+                                    <option value="Couvert">Couvert</option>
+                                    <option value="Extérieur">Extérieur</option>
+                                    <option value="Souterrain">Souterrain</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-semibold mb-2">Taille</label>
+                                <select
+                                    name="size"
+                                    class="w-full bg-white/10 border border-white/20 rounded-lg px-4 py-3 focus:outline-none focus:border-primary transition-colors text-white"
+                                >
+                                    <option value="Standard">Standard</option>
+                                    <option value="Large">Large</option>
+                                    <option value="Compact">Compact</option>
+                                </select>
+                            </div>
+                        </div>
+                        
+                        <div>
+                            <label class="block text-sm font-semibold mb-2">Prix (ETH)</label>
+                            <input
+                                type="number"
+                                name="price"
+                                step="0.001"
+                                class="w-full bg-white/10 border border-white/20 rounded-lg px-4 py-3 focus:outline-none focus:border-primary transition-colors text-white"
+                                placeholder="0.05"
+                                required
+                            />
+                        </div>
+                        
+                        <div>
+                            <label class="block text-sm font-semibold mb-2">Description</label>
+                            <textarea
+                                name="description"
+                                rows="4"
+                                class="w-full bg-white/10 border border-white/20 rounded-lg px-4 py-3 focus:outline-none focus:border-primary transition-colors text-white"
+                                placeholder="Décrivez votre place de parking..."
+                            ></textarea>
+                        </div>
+                        
+                        <div class="flex items-center space-x-4">
+                            <input
+                                type="checkbox"
+                                name="available247"
+                                class="w-5 h-5 text-primary bg-white/10 border-white/20 rounded focus:ring-primary"
+                            />
+                            <label class="text-sm">Disponible 24/7</label>
+                        </div>
+                        
+                        <button
+                            type="submit"
+                            class="w-full bg-gradient-to-r from-primary to-secondary py-4 rounded-lg font-semibold text-lg hover:shadow-lg hover:shadow-primary/50 transition-all"
+                        >
+                            <i class="fas fa-rocket mr-2"></i>
+                            Créer le Token
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- My Tokens Page -->
+        <div id="myTokensPage" class="page-content hidden">
+            <div class="container mx-auto px-4 py-12">
+                <h1 class="text-4xl font-bold mb-8">Mes Tokens</h1>
+                
+                <div id="myTokensContent">
+                    <!-- Content will be inserted here based on wallet connection -->
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="glass-effect border-t border-purple-500/20 mt-20">
+        <div class="container mx-auto px-4 py-12">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
+                <div>
+                    <div class="flex items-center space-x-2 mb-4">
+                        <i class="fas fa-parking text-2xl text-primary"></i>
+                        <span class="text-xl font-bold">Parkey</span>
+                    </div>
+                    <p class="text-gray-400 text-sm">
+                        La première plateforme de tokenisation de places de parking sur blockchain.
+                    </p>
+                </div>
+                
+                <div>
+                    <h3 class="font-bold mb-4">Plateforme</h3>
+                    <ul class="space-y-2 text-gray-400 text-sm">
+                        <li>
+                            <a href="#" onclick="event.preventDefault(); showPage('marketplace')" class="hover:text-primary transition-colors">
+                                Marketplace
+                            </a>
+                        </li>
+                        <li>
+                            <a href="#" onclick="event.preventDefault(); showPage('create')" class="hover:text-primary transition-colors">
+                                Créer un Token
+                            </a>
+                        </li>
+                        <li>
+                            <a href="#" onclick="event.preventDefault(); showPage('my-tokens')" class="hover:text-primary transition-colors">
+                                Mes Tokens
+                            </a>
+                        </li>
+                        <li>
+                            <a href="#" onclick="event.preventDefault()" class="hover:text-primary transition-colors">
+                                Documentation
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+                
+                <div>
+                    <h3 class="font-bold mb-4">Ressources</h3>
+                    <ul class="space-y-2 text-gray-400 text-sm">
+                        <li>
+                            <a href="#" onclick="event.preventDefault()" class="hover:text-primary transition-colors">
+                                Guide
+                            </a>
+                        </li>
+                        <li>
+                            <a href="#" onclick="event.preventDefault()" class="hover:text-primary transition-colors">
+                                FAQ
+                            </a>
+                        </li>
+                        <li>
+                            <a href="#" onclick="event.preventDefault()" class="hover:text-primary transition-colors">
+                                Support
+                            </a>
+                        </li>
+                        <li>
+                            <a href="#" onclick="event.preventDefault()" class="hover:text-primary transition-colors">
+                                Blog
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+                
+                <div>
+                    <h3 class="font-bold mb-4">Communauté</h3>
+                    <div class="flex space-x-4">
+                        <a 
+                            href="#" 
+                            onclick="event.preventDefault()"
+                            class="w-10 h-10 glass-effect rounded-lg flex items-center justify-center hover:bg-primary transition-colors"
+                        >
+                            <i class="fab fa-twitter"></i>
+                        </a>
+                        <a 
+                            href="#" 
+                            onclick="event.preventDefault()"
+                            class="w-10 h-10 glass-effect rounded-lg flex items-center justify-center hover:bg-primary transition-colors"
+                        >
+                            <i class="fab fa-discord"></i>
+                        </a>
+                        <a 
+                            href="#" 
+                            onclick="event.preventDefault()"
+                            class="w-10 h-10 glass-effect rounded-lg flex items-center justify-center hover:bg-primary transition-colors"
+                        >
+                            <i class="fab fa-telegram"></i>
+                        </a>
+                        <a 
+                            href="#" 
+                            onclick="event.preventDefault()"
+                            class="w-10 h-10 glass-effect rounded-lg flex items-center justify-center hover:bg-primary transition-colors"
+                        >
+                            <i class="fab fa-github"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="border-t border-white/10 mt-8 pt-8 text-center text-gray-400 text-sm">
+                <p>&copy; 2024 Parkey. Tous droits réservés. Propulsé par Ethereum.</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Notification Toast -->
+    <div id="notification" class="fixed top-4 right-4 z-50 hidden animate-fade-in"></div>
+
+    <script>
+        // Data
+        const parkingsData = [
+            {
+                id: 1,
+                address: "15 Avenue des Champs-Élysées, Paris",
+                type: "Souterrain",
+                size: "Standard",
+                price: "0.08",
+                available: true,
+                image: "https://picsum.photos/400/300?random=1"
+            },
+            {
+                id: 2,
+                address: "42 Rue de Rivoli, Paris",
+                type: "Couvert",
+                size: "Large",
+                price: "0.12",
+                available: true,
+                image: "https://picsum.photos/400/300?random=2"
+            },
+            {
+                id: 3,
+                address: "88 Boulevard Saint-Germain, Paris",
+                type: "Extérieur",
+                size: "Standard",
+                price: "0.05",
+                available: false,
+                image: "https://picsum.photos/400/300?random=3"
+            },
+            {
+                id: 4,
+                address: "23 Rue du Faubourg Saint-Honoré, Paris",
+                type: "Souterrain",
+                size: "Compact",
+                price: "0.06",
+                available: true,
+                image: "https://picsum.photos/400/300?random=4"
+            },
+            {
+                id: 5,
+                address: "67 Avenue Montaigne, Paris",
+                type: "Couvert",
+                size: "Large",
+                price: "0.15",
+                available: true,
+                image: "https://picsum.photos/400/300?random=5"
+            },
+            {
+                id: 6,
+                address: "31 Rue de la Paix, Paris",
+                type: "Extérieur",
+                size: "Standard",
+                price: "0.07",
+                available: true,
+                image: "https://picsum.photos/400/300?random=6"
+            },
+            {
+                id: 7,
+                address: "55 Rue du Louvre, Paris",
+                type: "Souterrain",
+                size: "Large",
+                price: "0.10",
+                available: true,
+                image: "https://picsum.photos/400/300?random=7"
+            },
+            {
+                id: 8,
+                address: "12 Place Vendôme, Paris",
+                type: "Couvert",
+                size: "Standard",
+                price: "0.09",
+                available: true,
+                image: "https://picsum.photos/400/300?random=8"
+            },
+            {
+                id: 9,
+                address: "78 Boulevard Haussmann, Paris",
+                type: "Extérieur",
+                size: "Compact",
+                price: "0.04",
+                available: true,
+                image: "https://picsum.photos/400/300?random=9"
+            }
+        ];
+
+        let walletConnected = false;
+        let walletAddress = null;
+        let currentFilter = 'all';
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', function() {
+            renderFeaturedParkings();
+            renderMarketplaceParkings();
+            updateMyTokensPage();
+        });
+
+        // Navigation
+        function showPage(pageName) {
+            const pages = document.querySelectorAll('.page-content');
+            pages.forEach(page => page.classList.add('hidden'));
+            
+            const targetPage = document.getElementById(pageName + 'Page');
+            if (targetPage) {
+                targetPage.classList.remove('hidden');
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            }
+        }
+
+        function toggleMobileMenu() {
+            const menu = document.getElementById('mobileMenu');
+            const icon = document.getElementById('menuIcon');
+            menu.classList.toggle('hidden');
+            icon.classList.toggle('fa-bars');
+            icon.classList.toggle('fa-times');
+        }
+
+        // Wallet
+        function toggleWallet() {
+            if (walletConnected) {
+                disconnectWallet();
+            } else {
+                connectWallet();
+            }
+        }
+
+        function connectWallet() {
+            walletAddress = "0x742d...5e3a";
+            walletConnected = true;
+            document.getElementById('walletText').textContent = walletAddress;
+            showNotification('Wallet connecté avec succès!', 'success');
+            updateMyTokensPage();
+        }
+
+        function disconnectWallet() {
+            walletAddress = null;
+            walletConnected = false;
+            document.getElementById('walletText').textContent = 'Connecter Wallet';
+            showNotification('Wallet déconnecté', 'info');
+            updateMyTokensPage();
+        }
+
+        // Parking Card
+        function createParkingCard(parking) {
+            return `
+                <div class="glass-effect rounded-xl overflow-hidden hover:border-primary/50 transition-all hover-lift">
+                    <div class="relative h-48">
+                        <img
+                            src="${parking.image}"
+                            alt="${parking.address}"
+                            class="w-full h-full object-cover"
+                            loading="lazy"
+                        />
+                        <div class="absolute top-4 right-4">
+                            <span class="px-3 py-1 rounded-full text-xs font-semibold ${parking.available ? 'bg-accent' : 'bg-red-500'}">
+                                ${parking.available ? 'Disponible' : 'Loué'}
+                            </span>
+                        </div>
+                    </div>
+                    <div class="p-6">
+                        <h3 class="font-bold text-lg mb-2">${parking.address}</h3>
+                        <div class="flex items-center space-x-4 text-sm text-gray-400 mb-4">
+                            <span>
+                                <i class="fas fa-warehouse mr-1"></i>
+                                ${parking.type}
+                            </span>
+                            <span>
+                                <i class="fas fa-ruler-combined mr-1"></i>
+                                ${parking.size}
+                            </span>
+                        </div>
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <div class="text-2xl font-bold text-primary">${parking.price} ETH</div>
+                                <div class="text-xs text-gray-400">Prix de vente</div>
+                            </div>
+                            <button
+                                onclick="buyParking(${parking.id})"
+                                ${!parking.available ? 'disabled' : ''}
+                                class="bg-primary hover:bg-primary/80 px-6 py-2 rounded-lg font-semibold transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                            >
+                                Acheter
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        // Render Functions
+        function renderFeaturedParkings() {
+            const container = document.getElementById('featuredParkings');
+            const featured = parkingsData.slice(0, 6);
+            container.innerHTML = featured.map(parking => createParkingCard(parking)).join('');
+        }
+
+        function renderMarketplaceParkings() {
+            const container = document.getElementById('marketplaceParkings');
+            let filtered = parkingsData;
+            
+            if (currentFilter === 'available') {
+                filtered = parkingsData.filter(p => p.available);
+            } else if (currentFilter !== 'all') {
+                filtered = parkingsData.filter(p => p.type === currentFilter);
+            }
+            
+            container.innerHTML = filtered.map(parking => createParkingCard(parking)).join('');
+        }
+
+        function filterParkings(filter) {
+            currentFilter = filter;
+            
+            const buttons = document.querySelectorAll('.filter-btn');
+            buttons.forEach(btn => {
+                btn.classList.remove('bg-primary');
+                btn.classList.add('glass-effect', 'hover:bg-white/20');
+            });
+            
+            event.target.classList.add('bg-primary');
+            event.target.classList.remove('glass-effect', 'hover:bg-white/20');
+            
+            renderMarketplaceParkings();
+        }
+
+        function updateMyTokensPage() {
+            const container = document.getElementById('myTokensContent');
+            
+            if (!walletConnected) {
+                container.innerHTML = `
+                    <div class="text-center py-20">
+                        <div class="max-w-md mx-auto">
+                            <i class="fas fa-wallet text-6xl text-primary mb-6"></i>
+                            <h2 class="text-3xl font-bold mb-4">Connectez votre Wallet</h2>
+                            <p class="text-gray-400 mb-8">
+                                Veuillez connecter votre wallet pour voir vos tokens de parking
+                            </p>
+                        </div>
+                    </div>
+                `;
+            } else {
+                container.innerHTML = `
+                    <div class="text-center py-20">
+                        <i class="fas fa-parking text-6xl text-gray-600 mb-4"></i>
+                        <p class="text-gray-400 text-xl mb-4">Vous n'avez pas encore de tokens</p>
+                        <p class="text-gray-500 mb-8">Créez votre premier token de parking ou achetez-en un sur le marketplace</p>
+                        <div class="flex gap-4 justify-center">
+                            <button onclick="showPage('create')" class="bg-primary hover:bg-primary/80 px-6 py-3 rounded-lg font-semibold transition-all">
+                                Créer un Token
+                            </button>
+                            <button onclick="showPage('marketplace')" class="glass-effect hover:bg-white/20 px-6 py-3 rounded-lg font-semibold transition-all">
+                                Explorer le Marketplace
+                            </button>
+                        </div>
+                    </div>
+                `;
+            }
+        }
+
+        // Actions
+        function buyParking(id) {
+            if (!walletConnected) {
+                showNotification('Veuillez connecter votre wallet', 'error');
+                return;
+            }
+            
+            const parking = parkingsData.find(p => p.id === id);
+            showNotification(`Achat de la place "${parking.address}" pour ${parking.price} ETH en cours...`, 'info');
+            
+            setTimeout(() => {
+                showNotification('Achat réussi! Le token a été transféré à votre wallet.', 'success');
+            }, 2000);
+        }
+
+        function handleCreateParking(event) {
+            event.preventDefault();
+            
+            if (!walletConnected) {
+                showNotification('Veuillez connecter votre wallet', 'error');
+                return;
+            }
+            
+            const formData = new FormData(event.target);
+            const data = Object.fromEntries(formData);
+            
+            showNotification('Création du token en cours...', 'info');
+            
+            setTimeout(() => {
+                showNotification('Token créé avec succès!', 'success');
+                event.target.reset();
+                
+                setTimeout(() => {
+                    showPage('marketplace');
+                }, 1500);
+            }, 2000);
+        }
+
+        // Notifications
+        function showNotification(message, type) {
+            const notification = document.getElementById('notification');
+            const colors = {
+                success: 'bg-accent',
+                error: 'bg-red-500',
+                info: 'bg-primary'
+            };
+            
+            notification.className = `fixed top-4 right-4 z-50 ${colors[type]} text-white px-6 py-4 rounded-lg shadow-lg animate-fade-in`;
+            notification.textContent = message;
+            notification.classList.remove('hidden');
+            
+            setTimeout(() => {
+                notification.classList.add('hidden');
+            }, 3000);
+        }
+    </script>
+</body>
+</html>
