@@ -33,7 +33,7 @@ contract ParkeyEscrow is Ownable, ReentrancyGuard {
         uint256 releaseTime;        // Date de libération automatique
         uint256 createdAt;          // Date de création
         PaymentStatus status;       // Statut du paiement
-        string ref;           // Référence (ex: reservationId)
+        string refData;           // Référence (ex: reservationId)
         bool autoRelease;           // Libération automatique activée
     }
     
@@ -146,7 +146,7 @@ contract ParkeyEscrow is Ownable, ReentrancyGuard {
             releaseTime: _releaseTime,
             createdAt: block.timestamp,
             status: PaymentStatus.Pending,
-            ref: _reference,
+            refData: _reference,
             autoRelease: _autoRelease
         });
         
@@ -327,7 +327,7 @@ contract ParkeyEscrow is Ownable, ReentrancyGuard {
      */
     function getPaymentByReference(string memory _reference) external view returns (EscrowPayment memory) {
         uint256 paymentId = referenceToPaymentId[_reference];
-        require(paymentId > 0 || keccak256(bytes(payments[0].ref)) == keccak256(bytes(_reference)), "Reference non trouvee");
+        require(paymentId > 0 || keccak256(bytes(payments[0].refData)) == keccak256(bytes(_reference)), "Reference non trouvee");
         return payments[paymentId];
     }
 

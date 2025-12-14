@@ -7,16 +7,16 @@ import "@openzeppelin/contracts/access/Ownable.sol";
 
 /**
  * @title ParkeyNFT
- * @dev Smart contract pour la tokenisation de places de parking
+ * @dev tokenisation de places de parking
  */
 contract ParkeyNFT is ERC721, ERC721URIStorage, Ownable {
     uint256 private _tokenIdCounter = 0;
 
-    // Structure représentant une place de parking
+    // place de parking
     struct ParkingSpot {
         string parkingAddress;
-        string parkingType; // "covered", "outdoor", "underground"
-        string size; // "standard", "large", "compact"
+        string parkingType; 
+        string size; 
         uint256 price;
         bool isAvailable;
         bool available247;
@@ -208,10 +208,6 @@ contract ParkeyNFT is ERC721, ERC721URIStorage, Ownable {
 
     function _exists(uint256 tokenId) internal view returns (bool) {
         return ownerOf(tokenId) != address(0);
-    }
-
-    function _burn(uint256 tokenId) internal override(ERC721) {
-        super._burn(tokenId);
     }
 
     function tokenURI(uint256 tokenId)

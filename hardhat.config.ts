@@ -1,5 +1,8 @@
 import hardhatToolboxMochaEthersPlugin from "@nomicfoundation/hardhat-toolbox-mocha-ethers";
-import { configVariable, defineConfig } from "hardhat/config";
+import { defineConfig } from "hardhat/config";
+import dotenv from "dotenv";
+
+dotenv.config();
 
 export default defineConfig({
   plugins: [hardhatToolboxMochaEthersPlugin],
@@ -7,10 +10,18 @@ export default defineConfig({
     profiles: {
       default: {
         version: "0.8.28",
+        settings: {
+          viaIR: true,  
+          optimizer: {
+            enabled: true,
+            runs: 200,
+          },
+        },
       },
       production: {
         version: "0.8.28",
         settings: {
+          viaIR: true,  
           optimizer: {
             enabled: true,
             runs: 200,

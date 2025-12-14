@@ -26,6 +26,9 @@
     "dev": "vite dev"
   },
   "dependencies": {
-    "@tailwindcss/vite": "^4.1.18"
+    "@openzeppelin/contracts": "^5.4.0",
+    "@tailwindcss/vite": "^4.1.18",
+    "dotenv": "^17.2.3",
+    "viem": "^2.42.0"
   }
 }

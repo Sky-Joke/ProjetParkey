@@ -37,7 +37,7 @@ interface IParkeyEscrow {
         uint256 releaseTime,
         uint256 createdAt,
         uint8 status,
-        string memory ref,
+        string memory refData,
         bool autoRelease
     );
 }
